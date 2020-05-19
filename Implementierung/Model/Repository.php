@@ -1,0 +1,21 @@
+<?php
+
+
+abstract class Repository
+{
+    protected $dbConnection;
+
+    public function __construct()
+    {
+        $this->dbConnection = call_user_func_array('Database::getConnection', Config::getInstance()->getDBConfig());
+    }
+
+    public abstract function add($object);
+
+    public abstract function update($object);
+
+    public abstract function getCount();
+}
+
+
+?>
