@@ -8,6 +8,7 @@ class User implements \JsonSerializable
     private $Lastname;
     private $EmailAddress;
     private $PasswordHash;
+    private $BreakReminder;
 
     public function getUserId()
     {
@@ -55,6 +56,16 @@ class User implements \JsonSerializable
     public function setEmailAddress($email)
     {
         $this->EmailAddress = $email;
+    }
+
+    public function getBreakReminder()
+    {
+        return $this->BreakReminder;
+    }
+
+    public function setBreakReminder($BreakReminder)
+    {
+        $this->BreakReminder = $BreakReminder;
     }
 
     public function register($password, $repository)
