@@ -10,6 +10,13 @@ class Config
         "DB_PWD" => ""
     ];
 
+    private $_PAGES = [
+        "USER" => 0,
+        "PROJECT" => 1,
+        "TIME" => 2,
+        "LOGIN" => 3
+    ];
+
     private static $instance = null;
 
     public static function getInstance()
@@ -20,9 +27,24 @@ class Config
         return static::$instance;
     }
 
+    public function __construct()
+    {
+        $this->loadConfig();
+    }
+
+    private function loadConfig()
+    {
+        //
+    }
+
     public function getDBConfig()
     {
         return $this->_DB_CONFIG;
+    }
+
+    public function getPages()
+    {
+        return $this->_PAGES;
     }
 
 }

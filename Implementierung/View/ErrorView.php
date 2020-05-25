@@ -11,6 +11,9 @@ class ErrorView extends TemplateView
 
     public function render()
     {
+        if ($this->model != null) {
+            http_response_code($this->model->getHttpStatusCode());
+        }
         parent::render();
     }
 

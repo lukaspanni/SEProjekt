@@ -1,7 +1,7 @@
 <?php
 
 
-class TimeEntry
+class TimeEntry implements \JsonSerializable
 {
     private $UserId;
     private $ProjectId;
@@ -51,6 +51,10 @@ class TimeEntry
     }
 
 
+    public function jsonSerialize()
+    {
+        return get_object_vars($this);
+    }
 }
 
 ?>

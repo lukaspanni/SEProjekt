@@ -28,15 +28,11 @@ class Project implements \JsonSerializable
         return $this->ProjectManager;
     }
 
-    public function getTeamMembers()
+    public function getTeamMembers($repository)
     {
-        $repository = new ProjectRepository();
         return $repository->getMembers($this);
     }
-
-    public function getTeamTimeSummary(){
-        
-    }
+    
 
     public function setProjectName($name)
     {
