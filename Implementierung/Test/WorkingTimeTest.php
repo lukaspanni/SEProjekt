@@ -3,7 +3,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-require "./Model/WorkingTime.php";
+require "Implementierung/Model/WorkingTime.php";
 
 class WorkingTimeTest extends TestCase
 {

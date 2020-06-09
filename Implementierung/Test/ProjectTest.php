@@ -3,7 +3,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-require "./Model/Project.php";
+require "Implementierung/Model/Project.php";
 
 
 class ProjectTest extends TestCase
