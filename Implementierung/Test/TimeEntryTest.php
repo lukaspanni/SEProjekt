@@ -3,7 +3,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-require "Implementierung/Model/TimeEntry.php";
+require "./Model/TimeEntry.php";
 
 class TimeEntryTest extends TestCase
 {

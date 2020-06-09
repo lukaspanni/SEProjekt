@@ -3,9 +3,9 @@
 
 use PHPUnit\Framework\TestCase;
 
-require "Model/User.php";
-require "Model/Repository.php";
-require "Model/UserRepository.php";
+require "./Model/User.php";
+require "./Model/Repository.php";
+require "./Model/UserRepository.php";
 
 class UserTest extends TestCase
 {
