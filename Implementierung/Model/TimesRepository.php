@@ -1,9 +1,16 @@
 <?php
 
-
+/**
+ * Class TimesRepository
+ * adding, selecting and updating Working-Time and Time-Entry Objects from database
+ */
 class TimesRepository extends Repository
 {
 
+    /**
+     * @param $user User
+     * @return WorkingTime
+     */
     public function getByUser($user)
     {
         $sql = "SELECT UserId, ProjectId, StartTime, EndTime, TIMESTAMPDIFF(MINUTE, StartTime, EndTime) AS WorkingMinutes FROM workingtime WHERE UserId=:User AND TIMESTAMPDIFF(MINUTE, StartTime, EndTime) > 0";
@@ -16,6 +23,10 @@ class TimesRepository extends Repository
         return null;
     }
 
+    /**
+     * @param $project Project
+     * @return WorkingTime
+     */
     public function getByProject($project)
     {
         $sql = "SELECT UserId, ProjectId, StartTime, EndTime, TIMESTAMPDIFF(MINUTE, StartTime, EndTime) AS WorkingMinutes FROM workingtime WHERE ProjectId=:Project AND TIMESTAMPDIFF(MINUTE, StartTime, EndTime) > 0";
@@ -28,6 +39,11 @@ class TimesRepository extends Repository
         return null;
     }
 
+    /**
+     * Get active entry(=running time recording) of specific user
+     * @param $user User
+     * @return TimeEntry
+     */
     public function getActiveEntry($user){
         if(is_numeric($user)){
             $param = array(":User"=>$user);
@@ -44,6 +60,12 @@ class TimesRepository extends Repository
         return null;
     }
 
+    /**
+     * Get all entries of user in project
+     * @param $project Project
+     * @param $user User
+     * @return WorkingTime
+     */
     public function getAllEntries($project, $user)
     {
         $sql = "SELECT UserId, ProjectId, StartTime, EndTime, TIMESTAMPDIFF(MINUTE, StartTime, EndTime) AS WorkingMinutes FROM workingtime WHERE ProjectId=:Project AND UserId=:User AND TIMESTAMPDIFF(MINUTE, StartTime, EndTime) > 0";
@@ -56,6 +78,12 @@ class TimesRepository extends Repository
         return null;
     }
 
+    /**
+     * Get short summary of user working on project, if user null: get short summary of all users working on project
+     * @param $project Project
+     * @param null $user User
+     * @return int
+     */
     public function getSummary($project, $user = null)
     {
         if ($user == null) {
@@ -73,6 +101,12 @@ class TimesRepository extends Repository
         return null;
     }
 
+    /**
+     * Get the last n projects the user started a time recording for
+     * @param $user User
+     * @param $count int
+     * @return array
+     */
     public function getLastWorkingProjects($user, $count){
         $sql = "SELECT DISTINCT ProjectId, MAX(StartTime) FROM workingtime WHERE UserId=:User GROUP BY ProjectId ORDER BY MAX(StartTime) DESC LIMIT :Count";
         $stmt = $this->dbConnection->prepare($sql);
@@ -86,15 +120,19 @@ class TimesRepository extends Repository
         return null;
     }
 
+    /**
+     * @param $timeEntry TimeEntry
+     * @return bool
+     */
     public function add($timeEntry)
     {
         $params = array(":User" => $timeEntry->getUserId(), ":Project" => $timeEntry->getProjectId());
         $sql = "SELECT COUNT(*) FROM invited_to_work_on RIGHT OUTER JOIN project ON invited_to_work_on.projectId=project.ProjectId WHERE project.ProjectId=:Project AND (invited_to_work_on.userId=:User OR project.ProjectManager=:User)";
-        $stmt =$this->dbConnection->prepare($sql);
+        $stmt = $this->dbConnection->prepare($sql);
         $res = $stmt->execute($params);
         if ($res !== false && $stmt->fetchColumn() == 0) {
             //User isnt allowed to work at this project
-            return null;
+            return false;
         }
         $active = $this->getActiveEntry($timeEntry->getUserId());
         if ($active != null) {
@@ -110,14 +148,20 @@ class TimesRepository extends Repository
     }
 
 
+    /**
+     * @param $timeEntry TimeEntry
+     * @return mixed
+     */
     public function update($timeEntry)
     {
-        $sql = "UPDATE workingtime SET EndTime=CURRENT_TIMESTAMP WHERE EndTime IS NULL AND UserId=:User AND ProjectId=:Project AND StartTime=:StartTime";
+        $sql = "UPDATE workingtime SET EndTime=:EndTime WHERE EndTime IS NULL AND UserId=:User AND ProjectId=:Project AND StartTime=:StartTime";
         $stmt = $this->dbConnection->prepare($sql);
-        return $stmt->execute(array(":User" => $timeEntry->getUserId(), ":Project"=>$timeEntry->getProjectId(), ":StartTime"=>$timeEntry->getStartTime()));
+        return $stmt->execute(array(":User" => $timeEntry->getUserId(), ":Project"=>$timeEntry->getProjectId(), ":StartTime"=>$timeEntry->getStartTime(),":EndTime"=>$timeEntry->getEndTime()));
     }
 
-
+    /**
+     * Count is not sensible for Time-Entries
+     */
     public function getCount()
     {
         throw new BadMethodCallException();

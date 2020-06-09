@@ -3,7 +3,10 @@
 require(SERVER_ROOT . 'Model/User.php');
 require(SERVER_ROOT . 'Model/UserRepository.php');
 
-
+/**
+ * Class AuthenticationController
+ * Controller for Authentication/Registration
+ */
 class AuthenticationController extends Controller
 {
     private $userRepository;
@@ -21,11 +24,15 @@ class AuthenticationController extends Controller
 
     public function index()
     {
-        $this->view->set('page', Config::getInstance()->getPages()["LOGIN"]);
+        $this->view->set('page', Config::$_PAGES["LOGIN"]);
         $this->view->set('title', "Login/Registrieren");
         $this->view->render();
     }
 
+    /**
+     * Validate Registration Input and perform User-Registration
+     * Save login-state if registration is successful
+     */
     public function register()
     {
         if ($this->requestMethod == "POST") {
@@ -35,13 +42,12 @@ class AuthenticationController extends Controller
                 if (filter_var($data["user_email"], FILTER_VALIDATE_EMAIL) && strlen($data["user_password"]) != 0) {
                     if ($data["user_password"] == $data["user_password_retype"]) {
                         $user = new User();
-                        $user->setEmailAddress($data["user_email"]);
-                        $user->setFirstname($data["user_firstname"]);
-                        $user->setLastname($data["user_lastname"]);
+                        $user->edit($data["user_firstname"], $data["user_lastname"], $data["user_email"]);
                         if ($user->register($data["user_password"], $this->userRepository)) {
                             $_SESSION["login"] = true;
                             $user->saveToSession();
-                            header("Location: /");
+                            var_dump($_SESSION);
+                            header("Location: /user/current");
                         }
                     }
                 }
@@ -56,6 +62,10 @@ class AuthenticationController extends Controller
         $this->index();
     }
 
+    /**
+     * Validate login-input and perform login
+     * Save login-state if successful
+     */
     public function login()
     {
         //30 seconds timeout
@@ -69,8 +79,7 @@ class AuthenticationController extends Controller
             $data = $this->escape_input_array($_POST);
             if (isset($data["user_email"]) && isset($data["user_password"])) {
                 $user = $this->userRepository->getByEmail($data["user_email"]);
-                if ($user != null && $user->login($data["user_password"])) {
-                    $_SESSION["login"] = true;
+                if ($user != null && $user->verifyPassword($data["user_password"])) {
                     $user->saveToSession();
                     header("Location: /");
                     return;
@@ -93,6 +102,9 @@ class AuthenticationController extends Controller
         $this->index();
     }
 
+    /**
+     * Perform logout, delete login-state
+     */
     public function logout()
     {
         //https://www.php.net/session_destroy

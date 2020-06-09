@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * Class TimeEntry
+ * Ignoring naming conventions to allow loading from database
+ */
 class TimeEntry implements \JsonSerializable
 {
     private $UserId;
@@ -9,10 +12,9 @@ class TimeEntry implements \JsonSerializable
     private $EndTime;
     private $WorkingMinutes;
 
-
-    public function getUserId()
+    public function getStartTime()
     {
-        return $this->UserId;
+        return $this->StartTime;
     }
 
     public function getProjectId()
@@ -20,9 +22,9 @@ class TimeEntry implements \JsonSerializable
         return $this->ProjectId;
     }
 
-    public function getStartTime()
+    public function getUserId()
     {
-        return $this->StartTime;
+        return $this->UserId;
     }
 
     public function getEndTime()
@@ -35,21 +37,44 @@ class TimeEntry implements \JsonSerializable
         return $this->WorkingMinutes;
     }
 
-    public function setUserId($UserId)
+    public function edit($userId, $projectId)
     {
-        $this->UserId = $UserId;
+        $this->UserId = $userId;
+        $this->ProjectId = $projectId;
     }
 
-    public function setProjectId($ProjectId)
+
+    /**
+     * Start this time recording
+     * @throws Exception
+     */
+    public function start()
     {
-        $this->ProjectId = $ProjectId;
+        if($this->StartTime == null) {
+            $this->StartTime = date("Y-m-d H:i:s");
+        }else{
+            throw new Error("already started");
+        }
     }
 
-    public function setStartTime($StartTime)
+    /**
+     * Stop running recording and calculate working minutes
+     * @throws Exception
+     */
+    public function stop()
     {
-        $this->StartTime = $StartTime;
+        if($this->StartTime == null){
+            throw new Error("cannot stop before start");
+        }
+        if($this->EndTime == null) {
+            $this->EndTime = date("Y-m-d H:i:s");
+            $startDate = new DateTime($this->StartTime);
+            $interval = $startDate->diff(new DateTime($this->EndTime));
+            $this->WorkingMinutes = $interval->i;
+        }else{
+            throw new Error("already stopped");
+        }
     }
-
 
     public function jsonSerialize()
     {

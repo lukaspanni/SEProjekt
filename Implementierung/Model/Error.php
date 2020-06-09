@@ -1,6 +1,8 @@
 <?php
 
-
+/**
+ * Class ApplicationError
+ */
 class ApplicationError
 {
 
@@ -29,11 +31,17 @@ class ApplicationError
 
 }
 
+/**
+ * Class ErrorType - Enum
+ * Contains possible Error Types
+ */
 abstract class ErrorType
 {
     const LOGIN_ERROR = "Login Error";
     const INVALID_INPUT = "Invalid Input";
     const OTHER_ERROR = "Other Error";
+    const ERROR_404 = "404 Not Found";
+    const ERROR_501 = "501 Not Implemented";
 }
 
 ?>

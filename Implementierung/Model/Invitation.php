@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * Class Invitation
+ * Ignoring naming conventions to allow loading from database
+ */
 class Invitation
 {
 
@@ -18,14 +21,9 @@ class Invitation
         return $this->ProjectId;
     }
 
-    public function setUserId($UserId)
-    {
-        $this->UserId = $UserId;
-    }
-
-    public function setProjectId($ProjectId)
-    {
-        $this->ProjectId = $ProjectId;
+    public function edit($userId, $projectId){
+        $this->UserId = $userId;
+        $this->ProjectId = $projectId;
     }
 
     public function isAccepted()

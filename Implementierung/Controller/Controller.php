@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class Controller
+ * Base Class for Controllers
+ */
 abstract class Controller
 {
 
@@ -11,6 +15,11 @@ abstract class Controller
         $this->requestMethod = $requestMethod;
     }
 
+    /**
+     * removing/escaping not allowed characters
+     * @param $data
+     * @return string
+     */
     protected function escape_input($data)
     {
         $data = trim($data);
@@ -19,15 +28,22 @@ abstract class Controller
         return $data;
     }
 
-    protected function escape_input_array($array)
+    /**
+     * removing/escaping not allowed characters for every array-entry
+     * @param $dataArray array,
+     * @return mixed
+     */
+    protected function escape_input_array($dataArray)
     {
-        foreach ($array as $key => $value) {
-            $array[$key] = $this->escape_input($value);
+        foreach ($dataArray as $key => $value) {
+            $dataArray[$key] = $this->escape_input($value);
         }
-        return $array;
+        return $dataArray;
     }
 
+    /**
+     * Default Controller-Function
+     */
     public abstract function index();
-
 
 }

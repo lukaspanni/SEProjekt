@@ -49,7 +49,7 @@
     </div>
     <?php
     if ($isProjectManager) {
-        $teamMembers = $this->model->getTeamMembers($this->projectRepository);
+        $teamMembers = $this->projectRepository->getMembers($this->model);
         ?>
         <div class="row" id="manage-team">
             <div class="col s12">
@@ -66,7 +66,6 @@
                                     <th>email</th>
                                 </tr>
                                 <?php
-                                //TODO: Component for UserTable? -> reduce duplicate code
                                 foreach ($teamMembers as $user) {
                                     ?>
                                     <tr>
@@ -100,7 +99,7 @@
     }
     if ($this->isShared || $isProjectManager) {
         $teamWorkingTime = $this->timesRepository->getByProject($this->model);
-        if (count($teamWorkingTime) > 0) {
+        if (count($teamWorkingTime->getEntries()) > 0) {
             ?>
             <div class="row" id="team-times">
                 <div class="col s12">
@@ -110,23 +109,30 @@
                             <p>Working time: <?php echo minutesToTimeString($teamWorkingTime->getTotalMinutes()); ?></p>
                             <?php
                             $maxEntry = $teamWorkingTime->getEntries()[0];
-                            $users = array();
-                            error_reporting(E_ALL & ~E_NOTICE);
+                            $userTimes = array();
+                            error_reporting(E_ALL & ~E_NOTICE); //Don't show notice for dynamically adding array indices
                             foreach ($teamWorkingTime->getEntries() as $entry) {
-                                $users[$entry->getUserId()] += $entry->getWorkingMinutes();
+                                $userTimes[$entry->getUserId()] += $entry->getWorkingMinutes();
                                 if ($entry->getWorkingMinutes() > $maxEntry->getWorkingMinutes()) {
                                     $maxEntry = $entry;
                                 }
                             }
-                            $users[5] = 3;
-                            $maxUserTime = max($users);
-                            $mostActive = array_keys($users, $maxUserTime)[0];
+                            $maxUserTime = max($userTimes);
+                            $mostActive = array_keys($userTimes, $maxUserTime)[0];
                             echo '<p>Max Working time: ' . minutesToTimeString($maxEntry->getWorkingMinutes()) . ' By User <a href="/user/id/' . $maxEntry->getUserId() . '">' . $maxEntry->getUserId() . '</a></p>';
                             echo '<p>Most active user: <a href="user/id/' . $mostActive . '">' . $mostActive . '</a> worked for a total of ' . minutesToTimeString($maxUserTime) . '</p>';
+                            echo '<span id="user-total-time" class="json_hidden">'. json_encode($userTimes) .'</span>';
+                            echo '<span id="team-time-entries" class="json_hidden">'.json_encode($teamWorkingTime->getEntries()).'</span>';
                             ?>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="row">
+                <canvas id="user-total-time-chart"></canvas>
+            </div>
+            <div class="row">
+                <canvas id="team-times-chart"></canvas>
             </div>
             <?php
         }

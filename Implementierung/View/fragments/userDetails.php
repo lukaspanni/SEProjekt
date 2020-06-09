@@ -15,7 +15,7 @@ $loggedInUser = User::loadFromSession();
             }
             ?>
             <div id="user-information">
-                <h1 id="name" data-type="text"><?php echo $this->model->getFullName(); ?></h1>
+                <h1 id="name" data-type="text"><?php echo $this->model->getFirstName() . " ". $this->model->getLastName(); ?></h1>
                 <h5 id="email" data-type="email"><?php echo $this->model->getEmailAddress(); ?></h5>
                 <?php
                 if($loggedInUser != null && $loggedInUser->getUserId() == $this->model->getUserId()){

@@ -11,7 +11,6 @@
         </tr>
         <?php
         foreach ($this->model as $row) {
-            //TODO: outsource to utility -> method to automatically create list-tables
             ?>
             <tr>
                 <td><a href="<?php echo "/project/id/" . $row->getProjectId(); ?>"><?php echo $row->getProjectId(); ?></a></td>

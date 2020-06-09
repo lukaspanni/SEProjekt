@@ -1,6 +1,9 @@
 <?php
 
-
+/**
+ * Class User
+ * Ignoring naming conventions to allow loading from database
+ */
 class User implements \JsonSerializable
 {
     private $UserId;
@@ -25,11 +28,6 @@ class User implements \JsonSerializable
         return $this->Lastname;
     }
 
-    public function getFullName()
-    {
-        return $this->Firstname . " " . $this->Lastname;
-    }
-
     public function getEmailAddress()
     {
         return $this->EmailAddress;
@@ -37,25 +35,10 @@ class User implements \JsonSerializable
 
     public function getPasswordHash()
     {
-        if(isset($this->PasswordHash)) {
+        if (isset($this->PasswordHash)) {
             return $this->PasswordHash;
         }
         return null;
-    }
-
-    public function setFirstname($firstname)
-    {
-        $this->Firstname = $firstname;
-    }
-
-    public function setLastname($lastname)
-    {
-        $this->Lastname = $lastname;
-    }
-
-    public function setEmailAddress($email)
-    {
-        $this->EmailAddress = $email;
     }
 
     public function getBreakReminder()
@@ -63,25 +46,49 @@ class User implements \JsonSerializable
         return $this->BreakReminder;
     }
 
-    public function setBreakReminder($BreakReminder)
+    /**
+     * Edit current user object
+     * @param $firstname string
+     * @param $lastname string
+     * @param $email string
+     * @param $breakReminder null | int
+     */
+    public function edit($firstname, $lastname, $email, $breakReminder = null)
     {
-        $this->BreakReminder = $BreakReminder;
+        $this->Firstname = $firstname;
+        $this->Lastname = $lastname;
+        $this->EmailAddress = $email;
+        if ($breakReminder != null && $breakReminder >= 1) {
+            $this->BreakReminder = $breakReminder;
+        }
     }
 
+    /**
+     * Hash Password and save current user-Object in database
+     * @param $password string
+     * @param $repository UserRepository
+     * @return mixed
+     */
     public function register($password, $repository)
     {
         $this->PasswordHash = password_hash($password, PASSWORD_DEFAULT);
         $result = $repository->add($this);
-        if(!$result){
+        if ($result) {
             //Set UserId From DB
             $this->UserId = $repository->getByEmail($this->EmailAddress)->getUserId();
         }
         return $result;
     }
 
-    public function login($password)
+    /**
+     * Verify password to match saved password hash
+     * If correct, unset password hash from user object
+     * @param $password string
+     * @return bool
+     */
+    public function verifyPassword($password)
     {
-        if(password_verify($password, $this->PasswordHash)){
+        if (isset($this->PasswordHash) && password_verify($password, $this->PasswordHash)) {
             unset($this->PasswordHash);
             return true;
         }
@@ -95,6 +102,7 @@ class User implements \JsonSerializable
 
     public function saveToSession()
     {
+        $_SESSION["login"] = true;
         $_SESSION["user"] = serialize($this);
     }
 
@@ -111,7 +119,6 @@ class User implements \JsonSerializable
         if (!isset($_SESSION['login'])) {
             $_SESSION['login'] = false;
         }
-
         return $_SESSION['login'];
     }
 }

@@ -1,11 +1,15 @@
 <?php
 
+/**
+ * Class Request
+ * Gets HTTP-Request-Method, Controller-Function (Action) and parameters for Controller function
+ */
 class Request
 {
-    public $method;
-    public $controller_name = "time";
-    public $action = "index";
-    public $parameter = [];
+    private $method;
+    private $controllerName = "time"; // default-controller
+    private $action = "index"; // default-action
+    private $parameter = [];
 
     public function __construct()
     {
@@ -14,20 +18,42 @@ class Request
             return_501_error();
         }
         $uri = $_SERVER["REQUEST_URI"];
-        $uri_parts = array_slice(explode('/', $uri), 1);
-        $uri_parts = array_values(array_filter($uri_parts));
-        if (count($uri_parts) >= 1) {
-            $this->controller_name = $uri_parts[0];
-            if (count($uri_parts) >= 2) {
-                $this->action = $uri_parts[1];
-                if (count($uri_parts) > 2) {
-                    for ($i = 2; $i < count($uri_parts); $i++) {
-                        $this->parameter[] = $uri_parts[$i];
+        $uriParts = array_slice(explode('/', $uri), 1);
+        $uriParts = array_values(array_filter($uriParts));
+        //get controller-function and parameter
+        if (count($uriParts) >= 1) {
+            $this->controllerName = $uriParts[0];
+            if (count($uriParts) >= 2) {
+                $this->action = $uriParts[1];
+                // parameter
+                if (count($uriParts) > 2) {
+                    for ($i = 2; $i < count($uriParts); $i++) {
+                        $this->parameter[] = $uriParts[$i];
                     }
                 }
             }
         }
 
+    }
+
+    public function getAction()
+    {
+        return $this->action;
+    }
+
+    public function getControllerName()
+    {
+        return $this->controllerName;
+    }
+
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    public function getParameter()
+    {
+        return $this->parameter;
     }
 }
 

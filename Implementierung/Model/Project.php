@@ -1,12 +1,16 @@
 <?php
 
-
+/**
+ * Class Project
+ * Ignoring naming conventions to allow loading from database
+ */
 class Project implements \JsonSerializable
 {
     private $ProjectId;
     private $ProjectName;
     private $ProjectDescription;
     private $ProjectManager;
+
 
     public function getProjectId()
     {
@@ -28,25 +32,18 @@ class Project implements \JsonSerializable
         return $this->ProjectManager;
     }
 
-    public function getTeamMembers($repository)
-    {
-        return $repository->getMembers($this);
-    }
-    
-
-    public function setProjectName($name)
-    {
+    /**
+     * Edit current project id
+     * @param $name string
+     * @param $description string
+     * @param $managerId null | int
+     */
+    public function edit($name, $description, $managerId=null){
         $this->ProjectName = $name;
-    }
-
-    public function setProjectDescription($description)
-    {
         $this->ProjectDescription = $description;
-    }
-
-    public function setProjectManager($managerId)
-    {
-        $this->ProjectManager = $managerId;
+        if($managerId != null){
+            $this->ProjectManager = $managerId;
+        }
     }
 
 
@@ -63,7 +60,11 @@ class Project implements \JsonSerializable
 
     public static function loadFromSession()
     {
-        return unserialize($_SESSION["activeProject"]);
+        if (isset($_SESSION["activeProject"])) {
+
+            return unserialize($_SESSION["activeProject"]);
+        }
+        return null;
     }
 }
 

@@ -22,18 +22,7 @@
         }
     }
     ?>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            //DROPDOWN
-            var dropdowns = document.querySelectorAll('.dropdown-trigger');
-            for (var i = 0; i < dropdowns.length; i++) {
-                M.Dropdown.init(dropdowns[i]);
-            }
-            //MOBILE
-            var elems = document.querySelectorAll('.sidenav');
-            var instances = M.Sidenav.init(elems, {});
-        });
-    </script>
+    <script type="text/javascript" src="/custom/js/custom.js"></script>
 </head>
 <body>
 <?php

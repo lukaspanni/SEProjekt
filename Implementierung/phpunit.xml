@@ -1,0 +1,10 @@
+<phpunit>
+    <testsuites>
+        <testsuite name="Model">
+            <file>Test/TimeEntryTest.php</file>
+            <file>Test/UserTest.php</file>
+            <file>Test/ProjectTest.php</file>
+            <file>Test/WorkingTimeTest.php</file>
+        </testsuite>
+    </testsuites>
+</phpunit>

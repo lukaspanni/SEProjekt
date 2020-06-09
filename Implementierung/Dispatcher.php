@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class Dispatcher
+ * Gets action and parameter from request and calls correct controller-function
+ */
 class Dispatcher
 {
 
@@ -7,26 +11,32 @@ class Dispatcher
 
     public function dispatch()
     {
+        //get data from request
         $this->request = new Request();
-        $controller = $this->getController();
+        $controller = $this->loadController();
         if ($controller == null) {
             return_404_error();
         } else {
-            if(method_exists($controller,$this->request->action)) {
-                call_user_func_array([$controller, $this->request->action], array($this->request->parameter));
+            //call controller-function with parameter
+            if(method_exists($controller,$this->request->getAction())) {
+                call_user_func_array([$controller, $this->request->getAction()], array($this->request->getParameter()));
             }else{
                 return_404_error();
             }
         }
     }
 
-    private function getController()
+    /**
+     * Loads Controller based ond controller-name
+     * @return Controller/null
+     */
+    private function loadController()
     {
-        $controller_class = ucfirst($this->request->controller_name) . 'Controller';
-        $controller_file = SERVER_ROOT . 'Controller/' . $controller_class . '.php';
-        if (file_exists($controller_file)) {
-            require($controller_file);
-            return new $controller_class($this->request->method);
+        $controllerClass = ucfirst($this->request->getControllerName()) . 'Controller';
+        $controllerFile = SERVER_ROOT . 'Controller/' . $controllerClass . '.php';
+        if (file_exists($controllerFile)) {
+            require($controllerFile);
+            return new $controllerClass($this->request->getMethod());
         }
         return null;
     }
