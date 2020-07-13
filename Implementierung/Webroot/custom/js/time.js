@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
-    let timeButtons = document.querySelectorAll('a.btn-floating');
+    let timeButtons = document.querySelectorAll('a.time-toggle');
     for (let btn of timeButtons) {
-        btn.addEventListener('click', buttonClick);
+        btn.addEventListener('click', toggleRecording);
     }
     if (document.querySelector('.invitation') != null) {
         let invitationButtons = document.querySelectorAll('.invitation a');
@@ -9,7 +9,12 @@ document.addEventListener('DOMContentLoaded', function () {
             btn.addEventListener('click', handleInvitation);
         }
     }
+    let downloadBtn = document.querySelector('#download');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', downloadCSV);
+    }
 
+    //Update currentRecording time
     setInterval(() => {
         if (currentRecording != null) {
             let activeProjectElem = document.querySelector('[data-projectid="' + currentRecording.ProjectId + '"');
@@ -43,10 +48,11 @@ function toggleRecording(e) {
             }
             btn.href = "/time/stop";
             btn.querySelector("i").innerText = "pause";
-            loadCurrenRecording();
+            loadCurrentRecording();
         } else {
             btn.href = "/time/start/" + btn.dataset.projectid;
             btn.querySelector("i").innerText = "play_arrow";
+            loadCurrentRecording();
         }
     });
 }
@@ -114,4 +120,23 @@ function updateTotalTime(projectWorkingTime) {
     console.log(minutesToTimeString(totalMinutes));
     projectWorkingTime.innerText = minutesToTimeString(totalMinutes);
 
+}
+
+/**
+ * Parse Time Entries into array and start download as CSV
+ */
+function downloadCSV() {
+    let rows = Array();
+    let projectName = document.querySelector("#projectName").textContent;
+    let tableContent = document.querySelectorAll('tbody tr');
+    for (entry of tableContent) {
+        // Slightly different format: seconds are not included to be more consistent because they are also not included in the html page
+        rows.push([entry.childNodes[0].textContent.replaceAll(".", "/"), entry.childNodes[1].textContent.replaceAll(".", "/"), projectName]);
+    }
+    console.log(rows);
+    //Source: https://stackoverflow.com/a/14966131
+    let csvContent = "data:text/csv;charset=utf-8,"
+        + rows.map(e => e.join(",")).join("\n");
+    let encodedUri = encodeURI(csvContent);
+    window.open(encodedUri);
 }

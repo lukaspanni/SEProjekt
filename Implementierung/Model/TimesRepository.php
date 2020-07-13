@@ -44,16 +44,17 @@ class TimesRepository extends Repository
      * @param $user User
      * @return TimeEntry
      */
-    public function getActiveEntry($user){
-        if(is_numeric($user)){
-            $param = array(":User"=>$user);
-        }else{
-            $param = array(":User"=>$user->getUserId());
+    public function getActiveEntry($user)
+    {
+        if (is_numeric($user)) {
+            $param = array(":User" => $user);
+        } else {
+            $param = array(":User" => $user->getUserId());
         }
         $sql = "SELECT UserId, ProjectId, StartTime, EndTime, TIMESTAMPDIFF(MINUTE, StartTime, NOW()) AS WorkingMinutes FROM workingtime WHERE UserId=:User AND EndTime IS NULL";
         $stmt = $this->dbConnection->prepare($sql);
         $res = $stmt->execute($param);
-        if($res !== false){
+        if ($res !== false) {
             $stmt->setFetchMode(PDO::FETCH_CLASS, "TimeEntry");
             return $stmt->fetch();
         }
@@ -64,13 +65,33 @@ class TimesRepository extends Repository
      * Get all entries of user in project
      * @param $project Project
      * @param $user User
-     * @return WorkingTime
+     * @return WorkingTime|null
      */
     public function getAllEntries($project, $user)
     {
         $sql = "SELECT UserId, ProjectId, StartTime, EndTime, TIMESTAMPDIFF(MINUTE, StartTime, EndTime) AS WorkingMinutes FROM workingtime WHERE ProjectId=:Project AND UserId=:User AND TIMESTAMPDIFF(MINUTE, StartTime, EndTime) > 0";
         $stmt = $this->dbConnection->prepare($sql);
         $res = $stmt->execute(array(":User" => $user->getUserId(), ":Project" => $project->getProjectId()));
+        if ($res !== false) {
+            $stmt->setFetchMode(PDO::FETCH_CLASS, "TimeEntry");
+            return new WorkingTime($stmt->fetchAll());
+        }
+        return null;
+    }
+
+    /**
+     * Get entries in given Interval
+     * @param $project Project
+     * @param $user User
+     * @param $startTime StartTime of the Interval
+     * @param $endTime EndTime of the Interval
+     * @return WorkingTime|null
+     */
+    public function getEntriesInterval($project, $user, $startTime, $endTime)
+    {
+        $sql = "SELECT UserId, ProjectId, StartTime, EndTime, TIMESTAMPDIFF(MINUTE, StartTime, EndTime) AS WorkingMinutes FROM workingtime WHERE ProjectId=:Project AND UserId=:User AND TIMESTAMPDIFF(MINUTE, StartTime, EndTime) > 0 AND StartTime>:StartTime AND EndTime<:EndTime";
+        $stmt = $this->dbConnection->prepare($sql);
+        $res = $stmt->execute(array(":User" => $user->getUserId(), ":Project" => $project->getProjectId(), ":StartTime"=>$startTime, ":EndTime"=>$endTime));
         if ($res !== false) {
             $stmt->setFetchMode(PDO::FETCH_CLASS, "TimeEntry");
             return new WorkingTime($stmt->fetchAll());
@@ -107,7 +128,8 @@ class TimesRepository extends Repository
      * @param $count int
      * @return array
      */
-    public function getLastWorkingProjects($user, $count){
+    public function getLastWorkingProjects($user, $count)
+    {
         $sql = "SELECT DISTINCT ProjectId, MAX(StartTime) FROM workingtime WHERE UserId=:User GROUP BY ProjectId ORDER BY MAX(StartTime) DESC LIMIT :Count";
         $stmt = $this->dbConnection->prepare($sql);
         $id = $user->getUserId(); //Else: Notice!
@@ -156,7 +178,7 @@ class TimesRepository extends Repository
     {
         $sql = "UPDATE workingtime SET EndTime=:EndTime WHERE EndTime IS NULL AND UserId=:User AND ProjectId=:Project AND StartTime=:StartTime";
         $stmt = $this->dbConnection->prepare($sql);
-        return $stmt->execute(array(":User" => $timeEntry->getUserId(), ":Project"=>$timeEntry->getProjectId(), ":StartTime"=>$timeEntry->getStartTime(),":EndTime"=>$timeEntry->getEndTime()));
+        return $stmt->execute(array(":User" => $timeEntry->getUserId(), ":Project" => $timeEntry->getProjectId(), ":StartTime" => $timeEntry->getStartTime(), ":EndTime" => $timeEntry->getEndTime()));
     }
 
     /**

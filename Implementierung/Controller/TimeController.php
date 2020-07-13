@@ -124,6 +124,37 @@ class TimeController extends Controller
     }
 
     /**
+     * Time-Entries for project in specific interval
+     * @param $param array
+     */
+    public function projectTimesInterval($param)
+    {
+        if (is_array($param) && count($param) == 3 && $this->user != null) {
+            $projectId = $param[0];
+            $startTime = $param["start_time"];
+            $endTime = $param["end_time"];
+        } else {
+            header("Location: /time");
+            return;
+        }
+        $project = $this->projectRepository->getById($projectId);
+        $workingTime = $this->timesRepository->getEntriesInterval($project, $this->user, $startTime, $endTime);
+        if ($project == null) {
+            $this->view = new ErrorView(new ApplicationError(ErrorType::INVALID_INPUT, "There is no data for this Input."));
+        } else {
+            $this->view->setMain("timeDetails");
+            $this->view->set('title', "Times for Project - " . $project->getProjectName());
+            $this->view->set('interval', array($startTime, $endTime));
+            $this->view->set('workingTime', $workingTime);
+            if ($this->activeEntry != null && $this->activeEntry->getProjectId() == $projectId) {
+                $this->view->set('currentRecording', $this->activeEntry);
+            }
+            $this->view->setModel($project);
+        }
+        $this->view->render();
+    }
+
+    /**
      * Start Time-Recording
      * @param $param array | int
      */
@@ -136,7 +167,10 @@ class TimeController extends Controller
         } else {
             header("Location: /time");
         }
-        if ($projectId == $this->activeEntry->getProjectId) {
+        if($this->activeEntry){
+            $this->stop();
+        }
+        if ($this->activeEntry && $projectId == $this->activeEntry->getProjectId()) {
             header("Location: /time/showProject/" . $projectId);
         }
         $project = $this->projectRepository->getById($projectId);
@@ -209,7 +243,7 @@ class TimeController extends Controller
      */
     public function currentTimeRecording($param)
     {
-        if ($this->activeEntry != null && is_array($param) && count($param) > 0 && strtoupper($param[0]) != "JSON") {
+        if ($this->activeEntry != null && is_array($param) && count($param) > 0 && strtoupper($param[0]) == "JSON") {
             $this->view = new JSONView($this->activeEntry);
             $this->view->render();
         }

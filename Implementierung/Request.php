@@ -28,7 +28,16 @@ class Request
                 // parameter
                 if (count($uriParts) > 2) {
                     for ($i = 2; $i < count($uriParts); $i++) {
-                        $this->parameter[] = $uriParts[$i];
+                        $param = preg_split('/(\?|\&)/', $uriParts[$i]);
+                        $param = array_filter($param);
+                        foreach ($param as $val) {
+                            if(strpos($val, "=")) {
+                                $key_val = explode("=", $val);
+                                $this->parameter[$key_val[0]] = $key_val[1];
+                            }else{
+                                $this->parameter[] = $val;
+                            }
+                        }
                     }
                 }
             }

@@ -60,10 +60,10 @@ function projectListSummary($projects, $activeProject, $activeEntry)
                     <?php
                     if ($activeProject != null && $activeProject->getProjectId() == $summary["project"]->getProjectId()) {
                         echo '<p>Working Minutes <span class="total-time" data-minutes="'.$summary["timeSum"].'">' . minutesToTimeString(intval($summary["timeSum"])+intval($activeEntry->getWorkingMinutes())) . '</span></p>';
-                        echo '<a class="btn-floating right waves-effect waves-light red" href="/time/stop/"><i class="material-icons">pause</i></a>';
+                        echo '<a class="time-toggle btn-floating right waves-effect waves-light red" href="/time/stop/"><i class="material-icons">pause</i></a>';
                     } else {
                         echo '<p>Working Minutes <span class="total-time" data-minutes="'.$summary["timeSum"].'">' . minutesToTimeString(intval($summary["timeSum"])) . '</span></p>';
-                        echo '<a class="btn-floating right waves-effect waves-light red" href="/time/start/' . $summary["project"]->getProjectId() . '"><i class="material-icons">play_arrow</i></a>';
+                        echo '<a class="time-toggle btn-floating right waves-effect waves-light red" href="/time/start/' . $summary["project"]->getProjectId() . '"><i class="material-icons">play_arrow</i></a>';
                     }
                     ?>
                 </div>

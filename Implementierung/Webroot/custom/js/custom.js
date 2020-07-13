@@ -7,9 +7,9 @@ document.addEventListener('DOMContentLoaded', function () {
     let elems = document.querySelectorAll('.sidenav');
     let instances = M.Sidenav.init(elems, {});
     loadUser();
-    loadCurrenRecording();
+    loadCurrentRecording();
     setInterval(checkBreakReminder, 1000);
-    setInterval(loadCurrenRecording, 10000);
+    setInterval(loadCurrentRecording, 10000);
 });
 
 /**
@@ -29,7 +29,7 @@ function loadUser() {
 /**
  * load current recording, if exists
  */
-function loadCurrenRecording() {
+function loadCurrentRecording() {
     let request = new XMLHttpRequest();
     request.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
